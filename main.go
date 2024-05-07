@@ -13,6 +13,8 @@ func main() {
 	// Printing out the types of the variables and constants
 	fmt.Printf("Type of appName: %T, Type of numTickets is %T, Type of remainingTickets is %T\n", appName, numTickets, remainingTickets)
 
+	var bookings [50]string // Arrays of fixed sizes
+
 	// Defining var & types for users
 	var firstName string
 	var lastName string
@@ -32,8 +34,15 @@ func main() {
 	fmt.Println("Please enter the number of tickets you would like to buy: ")
 	fmt.Scan(&userTickets)
 
-	// Update the amount of remaining tickets
+	// Update the amount of remaining tickets & booked users
 	remainingTickets = remainingTickets - userTickets
+	bookings[0] = firstName + " " + lastName
+
+	// Print out information about the array
+	fmt.Printf("The whole array: %v\n", bookings)
+	fmt.Printf("The first element of the array: %v\n", bookings[0])
+	fmt.Printf("Array type: %T\n", bookings)
+	fmt.Printf("Array length: %v\n", len(bookings))
 
 	fmt.Printf("Example of pointer object: %v\n", &firstName)
 
