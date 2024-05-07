@@ -13,7 +13,8 @@ func main() {
 	// Printing out the types of the variables and constants
 	fmt.Printf("Type of appName: %T, Type of numTickets is %T, Type of remainingTickets is %T\n", appName, numTickets, remainingTickets)
 
-	var bookings [50]string // Arrays of fixed sizes
+	// var bookings [50]string // Arrays of fixed sizes
+	var bookings []string // Slices of dynamic sizes
 
 	// Defining var & types for users
 	var firstName string
@@ -36,13 +37,8 @@ func main() {
 
 	// Update the amount of remaining tickets & booked users
 	remainingTickets = remainingTickets - userTickets
-	bookings[0] = firstName + " " + lastName
-
-	// Print out information about the array
-	fmt.Printf("The whole array: %v\n", bookings)
-	fmt.Printf("The first element of the array: %v\n", bookings[0])
-	fmt.Printf("Array type: %T\n", bookings)
-	fmt.Printf("Array length: %v\n", len(bookings))
+	// bookings[0] = firstName + " " + lastName // Assignment of array element
+	bookings = append(bookings, firstName+" "+lastName) // Append to the slice
 
 	fmt.Printf("Example of pointer object: %v\n", &firstName)
 
@@ -50,5 +46,7 @@ func main() {
 	fmt.Printf("Purchase confirmed for %v %v. A confirmation email will be sent to %v for purchase of %v tickets.\n", firstName, lastName, email, userTickets)
 	fmt.Println("Thank you for your purchase!")
 	fmt.Printf("Remaining tickets: %v\n", remainingTickets)
+
+	fmt.Printf("There are %v bookings: %v\n", len(bookings), bookings)
 
 }
