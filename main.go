@@ -1,52 +1,106 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 func main() {
+	// Call the greetUsers function
 	appName := "My First Go Application" // Suagr syntax for defining variables
-	const numTickets int = 100           // Defining constant w/ implicit type
+	const numTickets uint = 100          // Defining constant w/ implicit type
 	var remainingTickets uint = 100      // Defining variable w/ explicit type
-
-	fmt.Printf("Welcome to the our %v .\n", appName)
-	fmt.Printf("We have %v tickets available for sale and we have %v tickets remaining.\n", numTickets, remainingTickets)
-
-	// Printing out the types of the variables and constants
-	fmt.Printf("Type of appName: %T, Type of numTickets is %T, Type of remainingTickets is %T\n", appName, numTickets, remainingTickets)
+	greetUsers(appName, numTickets, remainingTickets)
 
 	// var bookings [50]string // Arrays of fixed sizes
 	var bookings []string // Slices of dynamic sizes
 
-	// Defining var & types for users
-	var firstName string
-	var lastName string
-	var email string
-	var userTickets uint
+	for {
+		// Defining var & types for users
+		var firstName string
+		var lastName string
+		var email string
+		var userTickets uint
 
-	// Ask for user input information
-	fmt.Println("Please enter your first name: ")
-	fmt.Scan(&firstName) // Scan used for user I/O, need pointer to reference firstName variable where it is stored in memory
+		// Ask for user input information
+		fmt.Println("Please enter your first name: ")
+		fmt.Scan(&firstName) // Scan used for user I/O, need pointer to reference firstName variable where it is stored in memory
 
-	fmt.Println("Please enter your last name: ")
-	fmt.Scan(&lastName)
+		fmt.Println("Please enter your last name: ")
+		fmt.Scan(&lastName)
 
-	fmt.Println("Please enter your email: ")
-	fmt.Scan(&email)
+		fmt.Println("Please enter your email: ")
+		fmt.Scan(&email)
 
-	fmt.Println("Please enter the number of tickets you would like to buy: ")
-	fmt.Scan(&userTickets)
+		fmt.Println("Please enter the number of tickets you would like to buy: ")
+		fmt.Scan(&userTickets)
 
-	// Update the amount of remaining tickets & booked users
-	remainingTickets = remainingTickets - userTickets
-	// bookings[0] = firstName + " " + lastName // Assignment of array element
-	bookings = append(bookings, firstName+" "+lastName) // Append to the slice
+		isValidName := len(firstName) >= 2 && len(lastName) >= 2
+		isValidEmail := strings.Contains(email, "@")
+		isValidTickets := userTickets > 0 && userTickets <= remainingTickets
 
-	fmt.Printf("Example of pointer object: %v\n", &firstName)
+		// Check if the user is trying to buy more tickets than available
+		if isValidTickets && isValidName && isValidEmail {
+			// Update the amount of remaining tickets & booked users
+			remainingTickets = remainingTickets - userTickets
+			// bookings[0] = firstName + " " + lastName // Assignment of array element
+			bookings = append(bookings, firstName+" "+lastName) // Append to the slice
 
-	// Assigning values to user input
-	fmt.Printf("Purchase confirmed for %v %v. A confirmation email will be sent to %v for purchase of %v tickets.\n", firstName, lastName, email, userTickets)
-	fmt.Println("Thank you for your purchase!")
-	fmt.Printf("Remaining tickets: %v\n", remainingTickets)
+			fmt.Printf("Example of pointer object: %v\n", &firstName)
 
-	fmt.Printf("There are %v bookings: %v\n", len(bookings), bookings)
+			// Assigning values to user input
+			fmt.Printf("Purchase confirmed for %v %v. A confirmation email will be sent to %v for purchase of %v tickets.\n", firstName, lastName, email, userTickets)
+			fmt.Println("Thank you for your purchase!")
+			fmt.Printf("Remaining tickets: %v\n", remainingTickets)
 
+			firstNames := []string{}
+
+			// Iterate through the bookings slice, and append only first names
+			for _, booking := range bookings { // _ is a blank identifier, used to ignore unused variables
+				var names = strings.Fields(booking) // Fields returns slice
+				firstNames = append(firstNames, names[0])
+			}
+
+			fmt.Printf("There are %v bookings: %v\n", len(bookings), firstNames)
+
+			if remainingTickets == 0 {
+				// End the program
+				fmt.Println("All the tickets have been purchased. Thank you for your interest in our event!")
+				break
+			}
+		} else {
+			fmt.Println("Sorry, your input data is invalid.")
+			if !isValidName {
+				fmt.Println("Please enter a valid first and last name.")
+			}
+			if !isValidEmail {
+				fmt.Println("Please enter a valid email.")
+			}
+			if !isValidTickets {
+				fmt.Println("Please enter a valid number of tickets.")
+			}
+		}
+	}
+
+	// Example for switch statement
+	// var city := "new york"
+	//     switch city {
+	//        case "new york":
+	//             execute code for new york specific booking
+	//        case "london", "manchester":
+	//             execute code for london specific booking
+	//        default:
+	//			   execute code for default booking
+	// }
+
+}
+
+func greetUsers(confName string, numTickets uint, remainingTickets uint) {
+	fmt.Printf("Welcome to %v.", confName)
+
+	fmt.Printf("Welcome to the our %v .\n", confName)
+	fmt.Printf("We have %v tickets available for sale and we have %v tickets remaining.\n", numTickets, remainingTickets)
+
+	// Printing out the types of the variables and constants
+	fmt.Printf("Type of appName: %T, Type of numTickets is %T, Type of remainingTickets is %T\n", confName, numTickets, remainingTickets)
 }
