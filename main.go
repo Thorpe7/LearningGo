@@ -16,35 +16,16 @@ func main() {
 	var bookings []string // Slices of dynamic sizes
 
 	for {
-		// Defining var & types for users
-		var firstName string
-		var lastName string
-		var email string
-		var userTickets uint
 
-		// Ask for user input information
-		fmt.Println("Please enter your first name: ")
-		fmt.Scan(&firstName) // Scan used for user I/O, need pointer to reference firstName variable where it is stored in memory
+		// Get user data
+		firstName, lastName, email, userTickets := getUserData()
 
-		fmt.Println("Please enter your last name: ")
-		fmt.Scan(&lastName)
-
-		fmt.Println("Please enter your email: ")
-		fmt.Scan(&email)
-
-		fmt.Println("Please enter the number of tickets you would like to buy: ")
-		fmt.Scan(&userTickets)
-
-		isValidName := len(firstName) >= 2 && len(lastName) >= 2
-		isValidEmail := strings.Contains(email, "@")
-		isValidTickets := userTickets > 0 && userTickets <= remainingTickets
+		isValidName, isValidEmail, isValidTickets := validateUserData(firstName, lastName, email, userTickets, remainingTickets)
 
 		// Check if the user is trying to buy more tickets than available
 		if isValidTickets && isValidName && isValidEmail {
-			// Update the amount of remaining tickets & booked users
-			remainingTickets = remainingTickets - userTickets
-			// bookings[0] = firstName + " " + lastName // Assignment of array element
-			bookings = append(bookings, firstName+" "+lastName) // Append to the slice
+
+			remainingTickets, bookings := bookTickets(remainingTickets, userTickets, firstName, lastName, bookings)
 
 			fmt.Printf("Example of pointer object: %v\n", &firstName)
 
@@ -53,13 +34,7 @@ func main() {
 			fmt.Println("Thank you for your purchase!")
 			fmt.Printf("Remaining tickets: %v\n", remainingTickets)
 
-			firstNames := []string{}
-
-			// Iterate through the bookings slice, and append only first names
-			for _, booking := range bookings { // _ is a blank identifier, used to ignore unused variables
-				var names = strings.Fields(booking) // Fields returns slice
-				firstNames = append(firstNames, names[0])
-			}
+			firstNames := getFirstNames(bookings)
 
 			fmt.Printf("There are %v bookings: %v\n", len(bookings), firstNames)
 
@@ -103,4 +78,54 @@ func greetUsers(confName string, numTickets uint, remainingTickets uint) {
 
 	// Printing out the types of the variables and constants
 	fmt.Printf("Type of appName: %T, Type of numTickets is %T, Type of remainingTickets is %T\n", confName, numTickets, remainingTickets)
+}
+
+func getFirstNames(bookings []string) []string {
+	firstNames := []string{}
+	// Iterate through the bookings slice, and append only first names
+	for _, booking := range bookings { // _ is a blank identifier, used to ignore unused variables
+		var names = strings.Fields(booking) // Fields returns slice
+		firstNames = append(firstNames, names[0])
+	}
+	return firstNames
+}
+
+func validateUserData(firstName string, lastName string, email string, userTickets uint, remainingTickets uint) (bool, bool, bool) {
+	isValidName := len(firstName) >= 2 && len(lastName) >= 2
+	isValidEmail := strings.Contains(email, "@")
+	isValidTickets := userTickets > 0 && userTickets <= remainingTickets
+
+	return isValidName, isValidEmail, isValidTickets
+}
+
+func getUserData() (string, string, string, uint) {
+	// Defining var & types for users
+	var firstName string
+	var lastName string
+	var email string
+	var userTickets uint
+
+	// Ask for user input information
+	fmt.Println("Please enter your first name: ")
+	fmt.Scan(&firstName) // Scan used for user I/O, need pointer to reference firstName variable where it is stored in memory
+
+	fmt.Println("Please enter your last name: ")
+	fmt.Scan(&lastName)
+
+	fmt.Println("Please enter your email: ")
+	fmt.Scan(&email)
+
+	fmt.Println("Please enter the number of tickets you would like to buy: ")
+	fmt.Scan(&userTickets)
+
+	return firstName, lastName, email, userTickets
+}
+
+func bookTickets(remainingTickets uint, userTickets uint, firstName string, lastName string, bookings []string) (uint, []string) {
+	// Update the amount of remaining tickets & booked users
+	remainingTickets = remainingTickets - userTickets
+	// bookings[0] = firstName + " " + lastName // Assignment of array element
+	bookings = append(bookings, firstName+" "+lastName) // Append to the slice
+
+	return remainingTickets, bookings
 }
