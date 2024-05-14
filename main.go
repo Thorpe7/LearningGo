@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"intro/utils"
-	"strings"
+	"strconv"
 	// For custom imports, have to specify path from 'go.mod' with package name
 )
 
@@ -15,19 +15,30 @@ func main() {
 	greetUsers(appName, numTickets, remainingTickets)
 
 	// var bookings [50]string // Arrays of fixed sizes
-	var bookings []string // Slices of dynamic sizes
+	var bookings = make([]map[string]string, 0) // Slices of dynamic sizes
+	// Initializing a slice w/ a map, need to specify that the starting size is 0.
+
+	// Replacing slice w/ a map
+	var userData = make(map[string]string) // Use make to initialize a map
+
+	// Maps in go cannot have mixed data types! Keys and values must be of the same type
 
 	for {
 
 		// Get user data
 		firstName, lastName, email, userTickets := getUserData()
+		userData["firstName"] = firstName
+		userData["lastName"] = lastName
+		userData["email"] = email
+		userData["numTickets"] = strconv.FormatUint(uint64(userTickets), 10)
+		// Uses string conversion package to convert uint to stringa and the '10' is specifying that is a base 10 number.
 
 		isValidName, isValidEmail, isValidTickets := utils.ValidateUserData(firstName, lastName, email, userTickets, remainingTickets)
 
 		// Check if the user is trying to buy more tickets than available
 		if isValidTickets && isValidName && isValidEmail {
 
-			remainingTickets, bookings := bookTickets(remainingTickets, userTickets, firstName, lastName, bookings)
+			remainingTickets, bookings := bookTickets(remainingTickets, userTickets, bookings, userData)
 
 			fmt.Printf("Example of pointer object: %v\n", &firstName)
 
@@ -82,12 +93,11 @@ func greetUsers(confName string, numTickets uint, remainingTickets uint) {
 	fmt.Printf("Type of appName: %T, Type of numTickets is %T, Type of remainingTickets is %T\n", confName, numTickets, remainingTickets)
 }
 
-func getFirstNames(bookings []string) []string {
+func getFirstNames(bookings []map[string]string) []string {
 	firstNames := []string{}
 	// Iterate through the bookings slice, and append only first names
 	for _, booking := range bookings { // _ is a blank identifier, used to ignore unused variables
-		var names = strings.Fields(booking) // Fields returns slice
-		firstNames = append(firstNames, names[0])
+		firstNames = append(firstNames, booking["firstName"])
 	}
 	return firstNames
 }
@@ -115,11 +125,11 @@ func getUserData() (string, string, string, uint) {
 	return firstName, lastName, email, userTickets
 }
 
-func bookTickets(remainingTickets uint, userTickets uint, firstName string, lastName string, bookings []string) (uint, []string) {
+func bookTickets(remainingTickets uint, userTickets uint, bookings []map[string]string, userData map[string]string) (uint, []map[string]string) {
 	// Update the amount of remaining tickets & booked users
 	remainingTickets = remainingTickets - userTickets
 	// bookings[0] = firstName + " " + lastName // Assignment of array element
-	bookings = append(bookings, firstName+" "+lastName) // Append to the slice
+	bookings = append(bookings, userData) // Append to the slice
 
 	return remainingTickets, bookings
 }
