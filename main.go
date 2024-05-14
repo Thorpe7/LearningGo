@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"intro/utils"
 	"strings"
+	// For custom imports, have to specify path from 'go.mod' with package name
 )
 
 func main() {
@@ -20,7 +22,7 @@ func main() {
 		// Get user data
 		firstName, lastName, email, userTickets := getUserData()
 
-		isValidName, isValidEmail, isValidTickets := validateUserData(firstName, lastName, email, userTickets, remainingTickets)
+		isValidName, isValidEmail, isValidTickets := utils.ValidateUserData(firstName, lastName, email, userTickets, remainingTickets)
 
 		// Check if the user is trying to buy more tickets than available
 		if isValidTickets && isValidName && isValidEmail {
@@ -88,14 +90,6 @@ func getFirstNames(bookings []string) []string {
 		firstNames = append(firstNames, names[0])
 	}
 	return firstNames
-}
-
-func validateUserData(firstName string, lastName string, email string, userTickets uint, remainingTickets uint) (bool, bool, bool) {
-	isValidName := len(firstName) >= 2 && len(lastName) >= 2
-	isValidEmail := strings.Contains(email, "@")
-	isValidTickets := userTickets > 0 && userTickets <= remainingTickets
-
-	return isValidName, isValidEmail, isValidTickets
 }
 
 func getUserData() (string, string, string, uint) {
