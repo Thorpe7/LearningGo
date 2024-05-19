@@ -2,10 +2,19 @@ package main
 
 import (
 	"fmt"
-	"intro/utils"
-	"strconv"
-	// For custom imports, have to specify path from 'go.mod' with package name
+	"strings"
+	"sync"
+	"time"
 )
+
+type UserData struct {
+	firstName   string
+	lastName    string
+	email       string
+	userTickets uint
+}
+
+var wg sync.WaitGroup
 
 func main() {
 	// Call the greetUsers function
@@ -15,30 +24,22 @@ func main() {
 	greetUsers(appName, numTickets, remainingTickets)
 
 	// var bookings [50]string // Arrays of fixed sizes
-	var bookings = make([]map[string]string, 0) // Slices of dynamic sizes
-	// Initializing a slice w/ a map, need to specify that the starting size is 0.
-
-	// Replacing slice w/ a map
-	var userData = make(map[string]string) // Use make to initialize a map
-
-	// Maps in go cannot have mixed data types! Keys and values must be of the same type
+	var bookings = make([]UserData, 0) // Slices of dynamic sizes
 
 	for {
 
 		// Get user data
 		firstName, lastName, email, userTickets := getUserData()
-		userData["firstName"] = firstName
-		userData["lastName"] = lastName
-		userData["email"] = email
-		userData["numTickets"] = strconv.FormatUint(uint64(userTickets), 10)
-		// Uses string conversion package to convert uint to stringa and the '10' is specifying that is a base 10 number.
 
-		isValidName, isValidEmail, isValidTickets := utils.ValidateUserData(firstName, lastName, email, userTickets, remainingTickets)
+		isValidName, isValidEmail, isValidTickets := validateUserData(firstName, lastName, email, userTickets, remainingTickets)
 
 		// Check if the user is trying to buy more tickets than available
 		if isValidTickets && isValidName && isValidEmail {
 
-			remainingTickets, bookings := bookTickets(remainingTickets, userTickets, bookings, userData)
+			remainingTickets, bookings := bookTickets(remainingTickets, userTickets, firstName, lastName, email, bookings)
+
+			wg.Add(1)                                       // Number of threads to wait for
+			go sendTicket(userTickets, firstName, lastName) // 'go' keyword to run function in a goroutine (concurrent execution)
 
 			fmt.Printf("Example of pointer object: %v\n", &firstName)
 
@@ -70,6 +71,9 @@ func main() {
 		}
 	}
 
+	wg.Wait() // Waits for all goroutines to finish before exiting
+	// Waits until number of goroutine threads is 0
+
 	// Example for switch statement
 	// var city := "new york"
 	//     switch city {
@@ -93,13 +97,22 @@ func greetUsers(confName string, numTickets uint, remainingTickets uint) {
 	fmt.Printf("Type of appName: %T, Type of numTickets is %T, Type of remainingTickets is %T\n", confName, numTickets, remainingTickets)
 }
 
-func getFirstNames(bookings []map[string]string) []string {
+func getFirstNames(bookings []UserData) []string {
 	firstNames := []string{}
 	// Iterate through the bookings slice, and append only first names
 	for _, booking := range bookings { // _ is a blank identifier, used to ignore unused variables
-		firstNames = append(firstNames, booking["firstName"])
+		var name string = booking.firstName // Fields returns slice
+		firstNames = append(firstNames, name)
 	}
 	return firstNames
+}
+
+func validateUserData(firstName string, lastName string, email string, userTickets uint, remainingTickets uint) (bool, bool, bool) {
+	isValidName := len(firstName) >= 2 && len(lastName) >= 2
+	isValidEmail := strings.Contains(email, "@")
+	isValidTickets := userTickets > 0 && userTickets <= remainingTickets
+
+	return isValidName, isValidEmail, isValidTickets
 }
 
 func getUserData() (string, string, string, uint) {
@@ -125,11 +138,26 @@ func getUserData() (string, string, string, uint) {
 	return firstName, lastName, email, userTickets
 }
 
-func bookTickets(remainingTickets uint, userTickets uint, bookings []map[string]string, userData map[string]string) (uint, []map[string]string) {
+func bookTickets(remainingTickets uint, userTickets uint, firstName string, lastName string, email string, bookings []UserData) (uint, []UserData) {
 	// Update the amount of remaining tickets & booked users
 	remainingTickets = remainingTickets - userTickets
 	// bookings[0] = firstName + " " + lastName // Assignment of array element
+
+	// Create a struct to store the user data
+	var userData = UserData{
+		firstName:   firstName,
+		lastName:    lastName,
+		email:       email,
+		userTickets: userTickets,
+	}
 	bookings = append(bookings, userData) // Append to the slice
 
 	return remainingTickets, bookings
+}
+
+func sendTicket(userTickets uint, firstName string, lastName string) {
+	time.Sleep(50 * time.Second)
+	var ticket = fmt.Sprintf("%v tickets for %v %v", userTickets, firstName, lastName)
+	fmt.Printf("Sending ticket '%v'", ticket)
+	wg.Done() // Decrement (removes) the added thread so main function can exit
 }
